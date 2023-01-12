@@ -114,7 +114,7 @@ def export_to_github(access_token, file_name):
         file_content = file_content.encode()
 
         # Create the new file
-        repo.create_file(file_name, commit_message, file_content, branch=branch)
+        repo.create_file("uploads/" + file_name, commit_message, file_content, branch=branch)
 
 def import_from_github(access_token, repo, user_import, date_import):
     # access token
