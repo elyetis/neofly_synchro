@@ -124,7 +124,7 @@ def import_from_github(access_token, repo, user_import, date_import):
     repo = g.get_repo(repo)
 
     # List all the files in the root directory
-    files = repo.get_contents("")
+    files = repo.get_contents("uploads")
 
     # filter the list
     files = filter(lambda x: x.name.startswith(user_import) and x.name.endswith(".csv"), files)
