@@ -1,3 +1,4 @@
+# PLAN
 - on recupere dans ini date limite du dernier export *DONE*
 - verifie les changement depuis le dernier export *DONE*
 - si il y a eu des changement *DONE*
