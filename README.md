@@ -9,11 +9,11 @@
 
 
 - on recupere dans ini date limite du dernier import : *DONE*
-- on cherche dans github un ou plusieur fichier plus recent : *DONE*
+- on cherche dans github un ou plusieurs fichiers plus recent : *DONE*
 - si il y a des fichier plus recent : 
     - on telecharge les fichier : *DONE*
-    - (?) modifier contenu description pour differencier joueurs (?)
-    - (?) modifier la date si difference fuseau horaire, valeur dans .ini ou genere dans noms des fichier csv (?)
+    - (?) modifier contenu description pour differencier joueurs (?) : *EN COURS*
+    - (?) modifier la date si difference fuseau horaire, valeur dans .ini ou genere dans noms des fichier csv (?) : *EN COURS*
     - calculer la difference incomes / expenses pour avoir la difference
     - appliquer la difference dans la db, table : career, cash
         - (?) cas particulier ou ca irai dans le negatif (?)
