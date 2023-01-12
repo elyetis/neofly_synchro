@@ -1,7 +1,7 @@
 # PLAN
 - on recupere dans ini date limite du dernier export : *DONE*
 - verifie les changement depuis le dernier export : *DONE*
-- si il y a eu des changement : *DONE*
+- si il y a eu des changement :
     - trie le nouvel export cree : *DONE*
     - renomme le csv : *DONE*
     - upload du csv : *DONE*
@@ -10,7 +10,7 @@
 
 - on recupere dans ini date limite du dernier import : *DONE*
 - on cherche dans github un ou plusieur fichier plus recent : *DONE*
-- si il y a des fichier plus recent : *DONE*
+- si il y a des fichier plus recent : 
     - on telecharge les fichier : *DONE*
     - (?) modifier contenu description pour differencier joueurs (?)
     - (?) modifier la date si difference fuseau horaire, valeur dans .ini ou genere dans noms des fichier csv (?)
