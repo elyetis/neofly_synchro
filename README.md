@@ -13,9 +13,10 @@
 - si il y a des fichier plus recent : *DONE*
     - on telecharge les fichier : *DONE*
     - (?) modifier contenu description pour differentier joueurs (?)
+    - (?) modifier la date si difference fuseau horaire, valeur dans .ini ou genere dans noms des fichier csv (?)
     - calculer la difference incomes / expenses pour avoir la difference
     - appliquer la difference dans la db, table : career, cash
-        - cas particulier ou ca irai dans le negatif ? 
+        - (?) cas particulier ou ca irai dans le negatif (?)
     - insere le contenu des fichier dans db table "balances"
     - on enregistre/ecrase dans ini date limite de l'import qui viens d'être fait/dernier import
 
