@@ -12,9 +12,9 @@
 - on cherche dans github un ou plusieurs fichiers plus recent : *DONE*
 - si il y a des fichier plus recent : 
     - on telecharge les fichier : *DONE*
-    - (?) modifier contenu description pour differencier joueurs (?) : *EN COURS*
-    - (?) modifier la date si difference fuseau horaire, valeur dans .ini ou genere dans noms des fichier csv (?) : *EN COURS*
-    - calculer la difference incomes / expenses pour avoir la difference
+    - (?) modifier contenu description pour differencier joueurs (?) : *DONE*
+    - (?) modifier la date si difference fuseau horaire, valeur dans .ini ou genere dans noms des fichier csv (?) : *DONE*
+    - calculer la difference incomes / expenses pour avoir la difference : *EN COURS*
     - appliquer la difference dans la db, table : career, cash
         - (?) cas particulier ou ca irai dans le negatif (?)
     - insere le contenu des fichier dans db table "balances"
