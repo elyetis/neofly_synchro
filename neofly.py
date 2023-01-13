@@ -53,9 +53,16 @@ def check_changes(db_path, date_export):
             for row in current_data:
                 writer.writerow(row)
 
+        # Close the connection
+        conn.close()
+
         return('NOT_EMPTY')
     else:
         print("The table is empty. No new entries.")  
+
+        # Close the connection
+        conn.close()
+
         return('EMPTY')          
 
 def rename_csv(db_path, file_path):
@@ -84,6 +91,9 @@ def rename_csv(db_path, file_path):
 
     # Rename
     shutil.move(old_file, new_file)
+
+    # Close the connection
+    conn.close()
 
     # Return the name of the file
     return(new_file)
@@ -154,7 +164,7 @@ def modify_import_content(user_import, export_UTC, import_UTC):
     folder_path = "neofly_sync_imports"
 
     # Get all the CSV files in the folder
-    csv_files = [file for file in os.listdir(folder_path) if file.endswith('.csv') and file.startswith("TITO")]
+    csv_files = [file for file in os.listdir(folder_path) if file.endswith('.csv') and file.startswith(user_import)]
 
     # Calculate time difference
     if export_UTC > import_UTC:
@@ -192,10 +202,88 @@ def modify_import_content(user_import, export_UTC, import_UTC):
                     # Write the modified row to the new file
                     writer.writerow(row)
 
+def insert_sort_balances(db_path):
+    # Connect to the database
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
 
+    # Open the file
+    with open('neofly_sync_imports/all_in_one.csv', newline='') as file:
+        # Create a CSV reader
+        reader = csv.DictReader(file, fieldnames=["date", "description", "incomes", "expenses", "owner"])
+        
+        # Loop through the rows
+        for row in reader:
+            # Data get the row content
+            data = (row['date'], row['description'], row['incomes'], row['expenses'], row['owner'])
 
+            # Retrieve the current information from the "balances" table
+            c.execute("INSERT INTO balances (date, description, incomes, expenses, owner) VALUES (?, ?, ?, ?, ?)", data)
+            
+    # Commit the changes
+    conn.commit()
 
+    # Next step is to update the balances to sort it by date again
 
+    # Sort the table by the 'date' column
+    c.execute("SELECT * FROM balances ORDER BY date")
+
+    # Fetch all the results
+    results = c.fetchall()
+
+    # update all rows
+    i = 1
+    for row in results:
+        c.execute("UPDATE balances SET date = ?, description = ?, incomes = ?, expenses = ?, owner = ? WHERE rowid = ?", (row[0],row[1],row[2],row[3],row[4], i))
+        i = i + 1
+
+    # Commit the changes
+    conn.commit()
+
+    # Close the connection
+    conn.close()
+
+def update_cash_in_career(db_path, user_export):
+    # Open the file
+    with open('neofly_sync_imports/all_in_one.csv', newline='') as file:
+        # Create a CSV reader
+        reader = csv.DictReader(file, fieldnames=["date", "description", "incomes", "expenses", "owner"])
+        
+        # Declare variable
+        imported_cash_difference = 0
+
+        # Loop through the rows
+        for row in reader:
+            incomes = int(row['incomes'])
+            expenses = int(row['expenses'])
+            imported_cash_difference = imported_cash_difference + incomes - expenses
+
+    # Connect to the database
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+
+    # Get current cash value
+    c.execute("SELECT cash FROM career")
+
+    # Fetch all the results
+    current_cash = int(c.fetchone()[0])
+
+    # Get the new value
+    updated_cash = current_cash + imported_cash_difference
+
+    # Update cash with new value
+    c.execute("UPDATE career SET cash = ? WHERE name = ?", (updated_cash, user_export))
+
+    # Commit the changes
+    conn.commit()
+
+    # Close the connection
+    conn.close()
+
+# ____________________________________________________________________________________________________________________________
+
+#Git Access token
+access_token = "put your token here"
 
 # Initalisation variables .ini
 
@@ -216,14 +304,7 @@ export_UTC = int(export_UTC)
 import_UTC  = int(import_UTC)
 
 
-print(user_export + ' | ' + user_import  + ' | ' + repo + ' | ' + date_export + ' | ' + date_import + ' | ' + db_path)
-
-#Git Access token
-access_token = "example"
-
-
-
-#---------------------------------
+# ____________________________________________________________________________________________________________________________
 
 
 new_entries = check_changes(db_path, date_export)
@@ -244,4 +325,8 @@ import_from_github(access_token, repo, user_import, date_import)
 # modify the content of the imported csv ( description, timezone ) and put it in a new all_in_one.csv
 modify_import_content(user_import, export_UTC, import_UTC)
 
+# insert and sort the new entries in 'balances'
+insert_sort_balances(db_path)
 
+# update cash in career
+update_cash_in_career(db_path, user_export)
