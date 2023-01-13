@@ -8,6 +8,7 @@
     - renomme le csv : :white_check_mark:
     - upload du csv : :white_check_mark:
     - on enregistre/ecrase dans ini date limite de l'export qui viens d'être fait/dernier export : :white_check_mark:
+    - conserver backup dans sous dossier : :mag:
 
 
 - on recupere dans ini date limite du dernier import : :white_check_mark:
@@ -19,6 +20,7 @@
     - insere le contenu des fichier dans db table "balances" : :white_check_mark:
     - calculer la difference incomes / expenses pour avoir la difference : :white_check_mark:
     - appliquer la difference dans la db, table : career, cash : :white_check_mark:
-        - (?) cas particulier ou 'cash' irai dans le negatif (?)
+        - cas particulier ou 'cash' irai dans le negatif : :mag:
     - on enregistre/ecrase dans ini date limite de l'import qui viens d'être fait/dernier import : :white_check_mark:
+    - supprimer les csv importés : :construction:
 
