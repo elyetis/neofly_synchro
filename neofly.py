@@ -4,11 +4,18 @@ import sqlite3
 import csv
 import shutil
 import configparser
+import psutil
 from operator import itemgetter
 from datetime import datetime, timedelta
 
-#need pip install PyGithub
-
+def is_running(process_name):
+    for process in psutil.process_iter():
+        try:
+            if process_name.lower() in process.name().lower():
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    return False
 
 def get_last_row_col_value(file_path):
     # Open the csv file
@@ -293,59 +300,67 @@ def update_cash_in_career(db_path, user_export):
 # ____________________________________________________________________________________________________________________________
 
 
-# Initalisation variables .ini
 
-ini = configparser.ConfigParser()
-ini.read('neofly_sync.ini')
-
-user_export = ini.get('config', 'user_export')
-export_UTC = ini.get('config', 'export_UTC')
-user_import = ini.get('config', 'user_import')
-import_UTC = ini.get('config', 'import_UTC')
-repo = ini.get('config', 'repo')
-access_token = ini.get('config', 'access_token')
-date_export = ini.get('config', 'date_export')
-date_import = ini.get('config', 'date_import')
-db_path = ini.get('config', 'db_path')
-
-# Convert Timezone value to Int
-export_UTC = int(export_UTC)
-import_UTC  = int(import_UTC)
-
-
-# ____________________________________________________________________________________________________________________________
-
-
-new_entries = check_changes(db_path, date_export)
-
-if new_entries != 'EMPTY':
-    sort_and_save_csv('temp.csv')
-    name_of_exportcsv = rename_csv(db_path, 'temp.csv')
-    export_to_github(access_token, name_of_exportcsv)
-
-    ini['config']['date_export'] = get_last_row_col_value(name_of_exportcsv)
-
-    with open('neofly_sync.ini', 'w') as configfile:
-        ini.write(configfile)
-
-# Check if there is new files to import from github and download them, return 'NOT_EMPTY' if it was found
-result_found = import_from_github(access_token, repo, user_import, date_import)
-
-if result_found == 'NOT_EMPTY':
-    # modify the content of the imported csv ( description, timezone ) and put it in a new all_in_one.csv
-    modify_import_content(user_import, export_UTC, import_UTC)
-
-    # insert and sort the new entries in 'balances'
-    insert_sort_balances(db_path)
-
-    # update cash in career
-    update_cash_in_career(db_path, user_export)
-
-    # update .ini with new import value
-    ini['config']['date_import'] = get_last_row_col_value('neofly_sync_imports/all_in_one.csv')
-    with open('neofly_sync.ini', 'w') as configfile:
-        ini.write(configfile)
-
-    print('Database updated.')
+# We don't want to execute if NeoFly.exe is running
+if is_running("NeoFly.exe"):
+    print("NeoFly.exe is running. Close Neofly before trying to synchronise.")
 else:
-    print('Nothing new to import.')
+    print("NeoFly.exe is not running.")
+
+
+    # Initalisation variables .ini
+
+    ini = configparser.ConfigParser()
+    ini.read('neofly_sync.ini')
+
+    user_export = ini.get('config', 'user_export')
+    export_UTC = ini.get('config', 'export_UTC')
+    user_import = ini.get('config', 'user_import')
+    import_UTC = ini.get('config', 'import_UTC')
+    repo = ini.get('config', 'repo')
+    access_token = ini.get('config', 'access_token')
+    date_export = ini.get('config', 'date_export')
+    date_import = ini.get('config', 'date_import')
+    db_path = ini.get('config', 'db_path')
+
+    # Convert Timezone value to Int
+    export_UTC = int(export_UTC)
+    import_UTC  = int(import_UTC)
+
+
+    # ____________________________________________________________________________________________________________________________
+
+
+    new_entries = check_changes(db_path, date_export)
+
+    if new_entries != 'EMPTY':
+        sort_and_save_csv('temp.csv')
+        name_of_exportcsv = rename_csv(db_path, 'temp.csv')
+        export_to_github(access_token, name_of_exportcsv)
+
+        ini['config']['date_export'] = get_last_row_col_value(name_of_exportcsv)
+
+        with open('neofly_sync.ini', 'w') as configfile:
+            ini.write(configfile)
+
+    # Check if there is new files to import from github and download them, return 'NOT_EMPTY' if it was found
+    result_found = import_from_github(access_token, repo, user_import, date_import)
+
+    if result_found == 'NOT_EMPTY':
+        # modify the content of the imported csv ( description, timezone ) and put it in a new all_in_one.csv
+        modify_import_content(user_import, export_UTC, import_UTC)
+
+        # insert and sort the new entries in 'balances'
+        insert_sort_balances(db_path)
+
+        # update cash in career
+        update_cash_in_career(db_path, user_export)
+
+        # update .ini with new import value
+        ini['config']['date_import'] = get_last_row_col_value('neofly_sync_imports/all_in_one.csv')
+        with open('neofly_sync.ini', 'w') as configfile:
+            ini.write(configfile)
+
+        print('Database updated.')
+    else:
+        print('Nothing new to import.')
