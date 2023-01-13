@@ -3,6 +3,7 @@
 - verifie les changement depuis le dernier export : *DONE*
 - si il y a eu des changement :
     - trie le nouvel export cree : *DONE*
+        - returer ligne ou description commence par 'user_import' pour ne pas exporter des imports
     - renomme le csv : *DONE*
     - upload du csv : *DONE*
     - on enregistre/ecrase dans ini date limite de l'export qui viens d'être fait/dernier export : *DONE*
