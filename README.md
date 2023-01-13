@@ -18,5 +18,5 @@
     - calculer la difference incomes / expenses pour avoir la difference : *DONE*
     - appliquer la difference dans la db, table : career, cash : *DONE*
         - (?) cas particulier ou ca irai dans le negatif (?)
-    - on enregistre/ecrase dans ini date limite de l'import qui viens d'être fait/dernier import
+    - on enregistre/ecrase dans ini date limite de l'import qui viens d'être fait/dernier import : *DONE*
 
