@@ -7,6 +7,9 @@ import configparser
 from operator import itemgetter
 from datetime import datetime, timedelta
 
+#need pip install PyGithub
+
+
 def get_last_row_col_value(file_path):
     # Open the csv file
     with open(file_path, newline='') as file:
@@ -141,6 +144,9 @@ def import_from_github(access_token, repo, user_import, date_import):
     # filter the list
     files = filter(lambda x: x.name.startswith(user_import) and x.name.endswith(".csv"), files)
 
+    # Initialize a variable to keep track of whether you've found a file
+    result_found = "EMPTY"
+
     # Print the file names
     for file in files:
         # We want to have the date of the file from it's name to know if it's more recent than the last import
@@ -152,6 +158,8 @@ def import_from_github(access_token, repo, user_import, date_import):
 
         # If it's more recent than the last import
         if date_of_file > date_import:
+            # Update result_found so we can return it's value
+            result_found = "NOT_EMPTY"
 
             # Download the files
             file_name = file.name
@@ -159,6 +167,8 @@ def import_from_github(access_token, repo, user_import, date_import):
             # Write the content to a local file
             with open('neofly_sync_imports/' + file_name, "wb") as f:
                 f.write(file_content)
+
+    return(result_found)
 
 def modify_import_content(user_import, export_UTC, import_UTC):
     folder_path = "neofly_sync_imports"
@@ -282,8 +292,6 @@ def update_cash_in_career(db_path, user_export):
 
 # ____________________________________________________________________________________________________________________________
 
-#Git Access token
-access_token = "put your token here"
 
 # Initalisation variables .ini
 
@@ -295,6 +303,7 @@ export_UTC = ini.get('config', 'export_UTC')
 user_import = ini.get('config', 'user_import')
 import_UTC = ini.get('config', 'import_UTC')
 repo = ini.get('config', 'repo')
+access_token = ini.get('config', 'access_token')
 date_export = ini.get('config', 'date_export')
 date_import = ini.get('config', 'date_import')
 db_path = ini.get('config', 'db_path')
@@ -319,14 +328,24 @@ if new_entries != 'EMPTY':
     with open('neofly_sync.ini', 'w') as configfile:
         ini.write(configfile)
 
-# Check if there is new files to import from github and download them
-import_from_github(access_token, repo, user_import, date_import)
+# Check if there is new files to import from github and download them, return 'NOT_EMPTY' if it was found
+result_found = import_from_github(access_token, repo, user_import, date_import)
 
-# modify the content of the imported csv ( description, timezone ) and put it in a new all_in_one.csv
-modify_import_content(user_import, export_UTC, import_UTC)
+if result_found == 'NOT_EMPTY':
+    # modify the content of the imported csv ( description, timezone ) and put it in a new all_in_one.csv
+    modify_import_content(user_import, export_UTC, import_UTC)
 
-# insert and sort the new entries in 'balances'
-insert_sort_balances(db_path)
+    # insert and sort the new entries in 'balances'
+    insert_sort_balances(db_path)
 
-# update cash in career
-update_cash_in_career(db_path, user_export)
+    # update cash in career
+    update_cash_in_career(db_path, user_export)
+
+    # update .ini with new import value
+    ini['config']['date_import'] = get_last_row_col_value('neofly_sync_imports/all_in_one.csv')
+    with open('neofly_sync.ini', 'w') as configfile:
+        ini.write(configfile)
+
+    print('Database updated.')
+else:
+    print('Nothing new to import.')
