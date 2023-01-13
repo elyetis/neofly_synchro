@@ -1,9 +1,11 @@
 from github import Github
+import os
 import sqlite3
 import csv
 import shutil
 import configparser
 from operator import itemgetter
+from datetime import datetime, timedelta
 
 def get_last_row_col_value(file_path):
     # Open the csv file
@@ -145,33 +147,79 @@ def import_from_github(access_token, repo, user_import, date_import):
             file_name = file.name
             file_content = file.decoded_content
             # Write the content to a local file
-            with open(file_name, "wb") as f:
+            with open('neofly_sync_imports/' + file_name, "wb") as f:
                 f.write(file_content)
 
+def modify_import_content(user_import, export_UTC, import_UTC):
+    folder_path = "neofly_sync_imports"
+
+    # Get all the CSV files in the folder
+    csv_files = [file for file in os.listdir(folder_path) if file.endswith('.csv') and file.startswith("TITO")]
+
+    # Calculate time difference
+    if export_UTC > import_UTC:
+        time_dif = (import_UTC - export_UTC)*(-1)
+    elif import_UTC > export_UTC:
+        time_dif = (import_UTC - export_UTC)*(-1)
+
+
+    # Open the new CSV file for writing
+    with open(os.path.join(folder_path,"all_in_one.csv"), "w", newline="") as new_file:
+        writer = csv.writer(new_file)
+        # Loop through the CSV files and write the rows to the new file
+        for file in csv_files:
+            with open(os.path.join(folder_path, file), "r") as csv_file:
+                reader = csv.reader(csv_file)
+                for row in reader:
+                    # Insert the name of the other user in the description
+                    row[1] = user_import + " : " + row[1]
+
+                    # Get the date of that entry
+                    datetime_import = row[0]
+
+                    # Convert to datetime objects
+                    datetime_import = datetime.strptime(datetime_import, "%Y-%m-%d %H:%M:%S")
+
+                    # Create a timedelta object from test2_datetime
+                    timedelta_result = timedelta(hours=time_dif)
+
+                    # Subtract the timedelta object from test1_datetime
+                    datetime_result = datetime_import + timedelta_result
+
+                    # Replace the value
+                    row[0] = datetime_result
+
+                    # Write the modified row to the new file
+                    writer.writerow(row)
 
 
 
 
 
 
-# Initalisation des variables .ini
+# Initalisation variables .ini
 
 ini = configparser.ConfigParser()
 ini.read('neofly_sync.ini')
 
 user_export = ini.get('config', 'user_export')
+export_UTC = ini.get('config', 'export_UTC')
 user_import = ini.get('config', 'user_import')
+import_UTC = ini.get('config', 'import_UTC')
 repo = ini.get('config', 'repo')
 date_export = ini.get('config', 'date_export')
 date_import = ini.get('config', 'date_import')
 db_path = ini.get('config', 'db_path')
 
+# Convert Timezone value to Int
+export_UTC = int(export_UTC)
+import_UTC  = int(import_UTC)
 
 
 print(user_export + ' | ' + user_import  + ' | ' + repo + ' | ' + date_export + ' | ' + date_import + ' | ' + db_path)
 
 #Git Access token
-access_token = "access_token"
+access_token = "example"
 
 
 
@@ -190,6 +238,10 @@ if new_entries != 'EMPTY':
     with open('neofly_sync.ini', 'w') as configfile:
         ini.write(configfile)
 
-
+# Check if there is new files to import from github and download them
 import_from_github(access_token, repo, user_import, date_import)
+
+# modify the content of the imported csv ( description, timezone ) and put it in a new all_in_one.csv
+modify_import_content(user_import, export_UTC, import_UTC)
+
 
