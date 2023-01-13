@@ -3,7 +3,7 @@
 - verifie les changement depuis le dernier export : *DONE*
 - si il y a eu des changement :
     - trie le nouvel export cree : *DONE*
-        - returer ligne ou description commence par 'user_import' pour ne pas exporter des imports
+        - retirer lignes ou la description commence par 'user_import' pour ne pas exporter des imports
     - renomme le csv : *DONE*
     - upload du csv : *DONE*
     - on enregistre/ecrase dans ini date limite de l'export qui viens d'être fait/dernier export : *DONE*
@@ -18,6 +18,6 @@
     - insere le contenu des fichier dans db table "balances" : *DONE*
     - calculer la difference incomes / expenses pour avoir la difference : *DONE*
     - appliquer la difference dans la db, table : career, cash : *DONE*
-        - (?) cas particulier ou ca irai dans le negatif (?)
+        - (?) cas particulier ou 'cash' irai dans le negatif (?)
     - on enregistre/ecrase dans ini date limite de l'import qui viens d'être fait/dernier import : *DONE*
 
