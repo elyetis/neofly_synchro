@@ -46,13 +46,13 @@ def sort_and_save_csv(file_path):
             writer.writerow(row)
     print(f"{file_path} is sorted and saved!")
 
-def check_changes(db_path, date_export):
+def check_changes(db_path, date_export, user_import):
     # Connect to the database
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
 
     # Retrieve the current information from the "balances" table
-    c.execute("SELECT * FROM balances WHERE date>'" + date_export + "' ORDER BY date ASC")
+    c.execute("SELECT * FROM balances WHERE date>'" + date_export + "' AND description NOT LIKE '" + user_import + "%' ORDER BY date ASC")
     current_data = set(c.fetchall())
 
     if current_data:
@@ -297,6 +297,22 @@ def update_cash_in_career(db_path, user_export):
     # Close the connection
     conn.close()
 
+def cleanup(file_path):
+    # Remove the exported file
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        print(f"{file_path} removed.")
+    else:
+        print(f"{file_path} not found.")
+
+    # remove the imported files
+    for root, dirs, files in os.walk('neofly_sync_imports/'):
+        for file in files:
+            if file.endswith(".csv"):
+                file_path = os.path.join(root, file)
+                os.remove(file_path)
+                print(f"{file_path} removed.")
+
 # ____________________________________________________________________________________________________________________________
 
 
@@ -307,6 +323,12 @@ if is_running("NeoFly.exe"):
 else:
     print("NeoFly.exe is not running.")
 
+    # Making sure the neofly_sync_imports folder exist
+    if not os.path.exists('neofly_sync_imports'):
+        os.makedirs('neofly_sync_imports')
+        print(f"{'neofly_sync_imports'} created.")
+    else:
+        print(f"{'neofly_sync_imports'} already exists.")
 
     # Initalisation variables .ini
 
@@ -331,7 +353,7 @@ else:
     # ____________________________________________________________________________________________________________________________
 
 
-    new_entries = check_changes(db_path, date_export)
+    new_entries = check_changes(db_path, date_export, user_import)
 
     if new_entries != 'EMPTY':
         sort_and_save_csv('temp.csv')
@@ -364,3 +386,6 @@ else:
         print('Database updated.')
     else:
         print('Nothing new to import.')
+
+    # Remove imported and exported csv from hdd ? might want to just move them to a backup subfolder ?
+    cleanup(name_of_exportcsv)
