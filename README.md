@@ -4,7 +4,7 @@
 - verifie les changement depuis le dernier export : :white_check_mark:
 - si il y a eu des changement :
     - trie le nouvel export cree : :white_check_mark:
-        - retirer lignes ou la description commence par 'user_import' pour ne pas exporter des imports : :construction:
+        - retirer lignes ou la description commence par 'user_import' pour ne pas exporter des imports : :white_check_mark:
     - renomme le csv : :white_check_mark:
     - upload du csv : :white_check_mark:
     - on enregistre/ecrase dans ini date limite de l'export qui viens d'être fait/dernier export : :white_check_mark:
@@ -22,5 +22,5 @@
     - appliquer la difference dans la db, table : career, cash : :white_check_mark:
         - cas particulier ou 'cash' irai dans le negatif : :mag:
     - on enregistre/ecrase dans ini date limite de l'import qui viens d'être fait/dernier import : :white_check_mark:
-    - supprimer les csv importés : :construction:
+    - supprimer les csv : :white_check_mark:
 
